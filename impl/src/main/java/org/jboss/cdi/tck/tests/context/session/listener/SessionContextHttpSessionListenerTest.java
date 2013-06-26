@@ -27,6 +27,7 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.cdi.tck.AbstractTest;
 import org.jboss.cdi.tck.shrinkwrap.WebArchiveBuilder;
+import org.jboss.cdi.tck.util.Timer;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.test.audit.annotations.SpecAssertion;
 import org.jboss.test.audit.annotations.SpecVersion;
@@ -37,6 +38,8 @@ import com.gargoylesoftware.htmlunit.WebClient;
 
 @SpecVersion(spec = "cdi", version = "1.1 Final Release")
 public class SessionContextHttpSessionListenerTest extends AbstractTest {
+
+    private static final long DEFAULT_SLEEP_INTERVAL = 3000;
 
 	@ArquillianResource
 	private URL contextPath;
@@ -60,6 +63,10 @@ public class SessionContextHttpSessionListenerTest extends AbstractTest {
 		assertEquals(webClient.getPage(contextPath + "introspect").getWebResponse().getContentAsString(), sessionBeanId);
 		// Invalidate session
 		webClient.getPage(contextPath + "introspect?mode=invalidate");
+        // Create short-lived session
+        webClient.getPage(contextPath + "introspect?mode=timeout");
+        // Wait for session to timeout
+        Timer.startNew(DEFAULT_SLEEP_INTERVAL);
 		// Verify session scope was active during listener calls
 		TextPage page = webClient.getPage(contextPath + "introspect?mode=verify");
 		assertTrue(Boolean.valueOf(page.getContent()));

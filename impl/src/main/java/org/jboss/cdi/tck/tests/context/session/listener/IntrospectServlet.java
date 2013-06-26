@@ -42,6 +42,8 @@ public class IntrospectServlet extends HttpServlet {
 
 	public static final String MODE_VERIFY = "verify";
 
+    public static final String MODE_TIMEOUT = "timeout";
+
 	static boolean isSessionScopeActive = true;
 
 	@Inject
@@ -64,6 +66,8 @@ public class IntrospectServlet extends HttpServlet {
 			resp.setStatus(HttpServletResponse.SC_OK);
 			resp.setContentType("text/plain");
 			resp.getWriter().write(""+isSessionScopeActive);
+		} else if (MODE_TIMEOUT.equals(mode)) {
+            req.getSession().setMaxInactiveInterval(1);
 		} else {
 			throw new ServletException("Unknown mode");
 		}
